@@ -9,13 +9,14 @@ import com.lkrjangid.account_manager.AccountData
 
 fun Account.toAccountData(accountManager: AccountManager): AccountData {
     val displayName = accountManager.getUserData(this, "displayName")
+    // Only include entries with non-null values to avoid cast failures on the Dart side.
     val userDataMap = mutableMapOf<String?, String?>()
-    userDataMap["displayName"] = displayName
+    if (displayName != null) userDataMap["displayName"] = displayName
     return AccountData(
         username = this.name,
         accountType = this.type,
         displayName = displayName,
-        userData = userDataMap,
+        userData = if (userDataMap.isEmpty()) null else userDataMap,
     )
 }
 

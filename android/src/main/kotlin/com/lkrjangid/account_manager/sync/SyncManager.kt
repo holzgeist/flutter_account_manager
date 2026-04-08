@@ -36,16 +36,32 @@ class SyncManager(private val context: Context) {
         )
     }
 
+    /**
+     * Returns true if a sync is currently running.
+     * Requires READ_SYNC_STATS permission; returns false gracefully if denied.
+     */
     fun isSyncActive(username: String, accountType: String): Boolean {
         val account = Account(username, accountType)
         val authority = accountType + PROVIDER_AUTHORITY_SUFFIX
-        return ContentResolver.isSyncActive(account, authority)
+        return try {
+            ContentResolver.isSyncActive(account, authority)
+        } catch (e: SecurityException) {
+            false
+        }
     }
 
+    /**
+     * Returns true if a sync is queued but not yet running.
+     * Requires READ_SYNC_STATS permission; returns false gracefully if denied.
+     */
     fun isSyncPending(username: String, accountType: String): Boolean {
         val account = Account(username, accountType)
         val authority = accountType + PROVIDER_AUTHORITY_SUFFIX
-        return ContentResolver.isSyncPending(account, authority)
+        return try {
+            ContentResolver.isSyncPending(account, authority)
+        } catch (e: SecurityException) {
+            false
+        }
     }
 
     fun cancelSync(username: String, accountType: String) {

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Default icon shown in Settings → Accounts for this account type.
+
+    OVERRIDE THIS in your app:
+      Place any drawable named "ic_account_manager" in your app's
+      res/drawable/ directory and it will automatically replace this one.
+
+    Example — using your launcher icon as the account icon:
+      res/drawable/ic_account_manager.xml  (adaptive icon alias)
+        <adaptive-icon>...</adaptive-icon>
+
+    Or simply copy your existing mipmap into a drawable:
+      res/drawable/ic_account_manager.png
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="#FF1A73E8">
+
+    <!-- Person silhouette — generic account icon -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,12c2.21,0 4,-1.79 4,-4s-1.79,-4 -4,-4
+                          -4,1.79 -4,4 1.79,4 4,4z
+                          M12,14c-2.67,0 -8,1.34 -8,4v2h16v-2
+                          c0,-2.66 -5.33,-4 -8,-4z" />
+</vector>

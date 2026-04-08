@@ -5,13 +5,16 @@ import android.accounts.Account
 import android.accounts.AccountAuthenticatorResponse
 import android.accounts.AccountManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 
 /**
- * Minimal AccountAuthenticator required by Android's AccountManager framework.
+ * AccountAuthenticator wired to Android's AccountManager framework.
  *
- * Custom authentication UI should be implemented by the host app by launching
- * an Activity via the KEY_INTENT returned from addAccount / getAuthToken.
+ * Key contract:
+ * - [addAccount] must return [AccountManager.KEY_INTENT] pointing to
+ *   [AddAccountActivity] so Settings → Add account actually opens a UI.
+ * - [getAuthToken] returns a cached token or an Intent to re-authenticate.
  */
 class AccountAuthenticator(private val context: Context) :
     AbstractAccountAuthenticator(context) {
@@ -21,6 +24,11 @@ class AccountAuthenticator(private val context: Context) :
         accountType: String,
     ): Bundle = Bundle()
 
+    /**
+     * Called by Android when the user taps "Add account" in Settings.
+     * Returns an Intent so Android knows which Activity to launch.
+     * Without KEY_INTENT, nothing happens when the user taps the entry.
+     */
     override fun addAccount(
         response: AccountAuthenticatorResponse,
         accountType: String,
@@ -28,10 +36,16 @@ class AccountAuthenticator(private val context: Context) :
         requiredFeatures: Array<out String>?,
         options: Bundle,
     ): Bundle {
-        val result = Bundle()
-        result.putString(AccountManager.KEY_ACCOUNT_TYPE, accountType)
-        result.putString(AccountManager.KEY_ACCOUNT_NAME, "")
-        return result
+        val intent = Intent(context, AddAccountActivity::class.java).apply {
+            putExtra(AccountManager.KEY_ACCOUNT_TYPE, accountType)
+            // Pass the response so AddAccountActivity can call setAccountAuthenticatorResult()
+            putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
+            // Ensure the Activity starts fresh from Settings
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        return Bundle().apply {
+            putParcelable(AccountManager.KEY_INTENT, intent)
+        }
     }
 
     override fun confirmCredentials(
@@ -40,6 +54,11 @@ class AccountAuthenticator(private val context: Context) :
         options: Bundle?,
     ): Bundle? = null
 
+    /**
+     * Returns a cached token if available.
+     * When no credentials exist, returns KEY_INTENT so the caller can
+     * re-authenticate via [AddAccountActivity].
+     */
     override fun getAuthToken(
         response: AccountAuthenticatorResponse,
         account: Account,
@@ -49,18 +68,23 @@ class AccountAuthenticator(private val context: Context) :
         val am = AccountManager.get(context)
         val password = am.getPassword(account)
 
-        if (password != null) {
-            val result = Bundle()
-            result.putString(AccountManager.KEY_ACCOUNT_NAME, account.name)
-            result.putString(AccountManager.KEY_ACCOUNT_TYPE, account.type)
-            result.putString(AccountManager.KEY_AUTHTOKEN, password)
-            return result
+        return if (password != null) {
+            Bundle().apply {
+                putString(AccountManager.KEY_ACCOUNT_NAME, account.name)
+                putString(AccountManager.KEY_ACCOUNT_TYPE, account.type)
+                putString(AccountManager.KEY_AUTHTOKEN, password)
+            }
+        } else {
+            // No credentials — launch re-auth activity
+            val intent = Intent(context, AddAccountActivity::class.java).apply {
+                putExtra(AccountManager.KEY_ACCOUNT_TYPE, account.type)
+                putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            Bundle().apply {
+                putParcelable(AccountManager.KEY_INTENT, intent)
+            }
         }
-
-        val result = Bundle()
-        result.putInt(AccountManager.KEY_ERROR_CODE, AccountManager.ERROR_CODE_INVALID_RESPONSE)
-        result.putString(AccountManager.KEY_ERROR_MESSAGE, "No credentials available")
-        return result
     }
 
     override fun getAuthTokenLabel(authTokenType: String): String = authTokenType

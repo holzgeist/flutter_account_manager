@@ -93,6 +93,133 @@ android {
 
 Your account type is a reverse-domain identifier, e.g. `com.example.app`. Use this consistently across all API calls. It maps to the `android:accountType` used by the plugin's `AuthenticatorService`.
 
+#### 4. Customising the Settings → Accounts entry
+
+By default, the plugin shows **"Account Manager"** as the account label and a generic person icon in **Settings → Accounts**. You can override both with your own app's name and icon using Android's resource override mechanism — no code changes required, just add resources with the same name in your app.
+
+##### Option A — Resource override (recommended, zero code)
+
+The plugin defines two overrideable resources. Declare resources with the **same names** in your app and Android will automatically use yours instead of the plugin's defaults.
+
+**Label** — add to `android/app/src/main/res/values/strings.xml`:
+
+```xml
+<!-- Shows your actual app name in Settings → Accounts -->
+<string name="account_manager_label">My App Name</string>
+
+<!-- Or reference your existing app_name automatically: -->
+<string name="account_manager_label">@string/app_name</string>
+```
+
+**Icon** — add `android/app/src/main/res/drawable/ic_account_manager.xml`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Redirect to your launcher icon -->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@mipmap/ic_launcher" />
+```
+
+Or simply copy/symlink your existing launcher PNG into the drawable folder:
+
+```
+android/app/src/main/res/drawable/ic_account_manager.png
+```
+
+After these changes, **Settings → Accounts** will show your app's real name and icon — exactly like Gmail or Google Calendar do.
+
+##### Complete working example
+
+The following three files are all you need. Add them to your app's Android source tree exactly as shown.
+
+**`android/app/src/main/res/values/strings.xml`**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App name shown in the launcher, app switcher, and Settings → Accounts -->
+    <string name="app_name">My App</string>
+
+    <!--
+        Overrides the plugin's default "Account Manager" label.
+        Referencing @string/app_name keeps both in sync automatically.
+    -->
+    <string name="account_manager_label">@string/app_name</string>
+</resources>
+```
+
+**`android/app/src/main/res/drawable/ic_account_manager.xml`**
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Overrides the plugin's default person icon shown in Settings → Accounts.
+    Points to the app's own launcher icon so the account entry looks native.
+
+    android:src references the mipmap-* PNGs already present in every Flutter
+    project (mipmap-mdpi/ic_launcher.png through mipmap-xxxhdpi/ic_launcher.png).
+-->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@mipmap/ic_launcher" />
+```
+
+**`android/app/src/main/AndroidManifest.xml`** — use the string resource for the app label so it stays in sync:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:label="@string/app_name"   <!-- was: android:label="my_app" -->
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+        <!-- ... rest of your manifest ... -->
+    </application>
+</manifest>
+```
+
+> **How it works:** Android's resource merge system gives the app's resources higher priority than library resources. Because the plugin already references `@drawable/ic_account_manager` and `@string/account_manager_label` in `res/xml/authenticator.xml`, declaring resources with those exact names in your app is all it takes — the build tooling resolves them to yours automatically. No code changes, no manifest service overrides required.
+
+##### Option B — Full manual control (advanced)
+
+If you need complete control (e.g. different icons per build flavour), move the authenticator configuration entirely to your app by following these steps:
+
+**Step 1.** Suppress the plugin's built-in service registration in `android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<application>
+    <!-- Remove the plugin's AuthenticatorService so you can re-declare it -->
+    <service
+        android:name="com.lkrjangid.account_manager.authenticator.AuthenticatorService"
+        android:enabled="false"
+        tools:node="remove" />
+</application>
+```
+
+**Step 2.** Create `android/app/src/main/res/xml/authenticator.xml` with your own values:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accountType="com.example.myapp"
+    android:icon="@mipmap/ic_launcher"
+    android:smallIcon="@mipmap/ic_launcher"
+    android:label="@string/app_name" />
+```
+
+**Step 3.** Re-declare the service in your manifest pointing to your XML:
+
+```xml
+<service
+    android:name="com.lkrjangid.account_manager.authenticator.AuthenticatorService"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="android.accounts.AccountAuthenticator" />
+    </intent-filter>
+    <meta-data
+        android:name="android.accounts.AccountAuthenticator"
+        android:resource="@xml/authenticator" />
+</service>
+```
+
 ---
 
 ### iOS

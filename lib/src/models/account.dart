@@ -32,7 +32,13 @@ class Account {
         username: data.username,
         accountType: data.accountType,
         displayName: data.displayName,
-        userData: data.userData?.cast<String, String>(),
+        userData: data.userData == null
+            ? null
+            : Map.fromEntries(
+                data.userData!.entries
+                    .where((e) => e.key != null && e.value != null)
+                    .map((e) => MapEntry(e.key!, e.value!)),
+              ),
       );
 
   Account copyWith({

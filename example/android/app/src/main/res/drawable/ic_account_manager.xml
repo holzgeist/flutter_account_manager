@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Overrides the plugin's default person icon shown in Settings → Accounts.
+    Points to the app's own launcher icon so the account entry looks native.
+
+    android:src references the mipmap-* PNGs already present in this project
+    (mipmap-mdpi/ic_launcher.png through mipmap-xxxhdpi/ic_launcher.png).
+-->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@mipmap/ic_launcher" />

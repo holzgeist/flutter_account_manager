@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    AccountAuthenticator configuration.
+    Displayed in Settings → Accounts to identify this account type.
+
+    android:label  — overrideable via @string/account_manager_label in your app
+    android:icon   — overrideable via @drawable/ic_account_manager in your app
+
+    See README.md → "Customising the Settings → Accounts entry" for full details.
+-->
 <account-authenticator xmlns:android="http://schemas.android.com/apk/res/android"
     android:accountType="com.lkrjangid.account_manager"
-    android:icon="@android:drawable/sym_def_app_icon"
-    android:smallIcon="@android:drawable/sym_def_app_icon"
-    android:label="Account Manager" />
+    android:icon="@drawable/ic_account_manager"
+    android:smallIcon="@drawable/ic_account_manager"
+    android:label="@string/account_manager_label" />

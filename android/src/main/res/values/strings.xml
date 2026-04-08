@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Label shown in Settings → Accounts for this account type.
+
+        OVERRIDE THIS in your app's res/values/strings.xml:
+
+            <string name="account_manager_label">My App Name</string>
+
+        If not overridden, "Account Manager" is used as the default.
+        To automatically use your app's own name, add this to your strings.xml:
+
+            <string name="account_manager_label">@string/app_name</string>
+    -->
+    <string name="account_manager_label">Account Manager</string>
+</resources>

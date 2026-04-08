@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App name shown in the Android launcher -->
+    <string name="app_name">Account Manager Example</string>
+
+    <!--
+        Overrides the plugin's default "Account Manager" label.
+        This string is displayed in Settings → Accounts as the account type name.
+        By referencing @string/app_name we automatically stay in sync with
+        whatever the app is called.
+    -->
+    <string name="account_manager_label">@string/app_name</string>
+</resources>
