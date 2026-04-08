@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:account_manager/account_manager.dart';
+import 'package:flutter_account_manager/account_manager.dart';
 
 const _accountType = 'com.lkrjangid.account_manager';
 

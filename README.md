@@ -1,4 +1,4 @@
-# account_manager
+# flutter_account_manager
 
 A Flutter plugin for **cross-platform account management, authentication, and background synchronisation** using native platform APIs.
 
@@ -49,7 +49,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  account_manager: ^1.0.0
+  flutter_account_manager: ^1.0.0
 ```
 
 Then run:
@@ -253,7 +253,7 @@ platform :ios, '13.0'
 ## Quick Start
 
 ```dart
-import 'package:account_manager/account_manager.dart';
+import 'package:flutter_account_manager/account_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -784,4 +784,5 @@ MIT License — see [LICENSE](LICENSE).
 ---
 
 **Author:** Lokesh Jangid  
+**Package:** `flutter_account_manager`  
 **Version:** 1.0.0
