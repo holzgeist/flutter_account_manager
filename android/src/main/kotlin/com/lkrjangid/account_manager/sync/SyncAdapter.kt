@@ -60,15 +60,15 @@ class SyncAdapter(
             ) {}
             val conflicts = resolveConflicts(account, provider)
 
-            val elapsedMs = (System.currentTimeMillis() - startMs).toInt()
+            val elapsedMs = System.currentTimeMillis() - startMs
             callbackApi?.onSyncCompleted(
                 accountData,
                 SyncResultData(
                     success = true,
                     stats = SyncStatsData(
-                        itemsUploaded = uploaded,
-                        itemsDownloaded = downloaded,
-                        conflicts = conflicts,
+                        itemsUploaded = uploaded.toLong(),
+                        itemsDownloaded = downloaded.toLong(),
+                        conflicts = conflicts.toLong(),
                         syncTimeMs = elapsedMs,
                     ),
                 ),

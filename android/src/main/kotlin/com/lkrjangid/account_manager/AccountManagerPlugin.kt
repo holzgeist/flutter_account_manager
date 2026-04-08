@@ -1,6 +1,7 @@
 package com.lkrjangid.account_manager
 
 import android.content.Context
+import com.lkrjangid.account_manager.sync.SyncManager
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 
