@@ -45,8 +45,6 @@ class AccountManagerHostApiImpl(
                     account.displayName?.let {
                         accountManager.setUserData(androidAccount, "displayName", it)
                     }
-                    val authority = "${account.accountType}.provider"
-                    ContentResolver.setSyncAutomatically(androidAccount, authority, true)
                 }
                 withContext(Dispatchers.Main) { callback(Result.success(success)) }
             } catch (e: Exception) {
