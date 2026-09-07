@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'generated/account_manager_api.g.dart';
 import 'exceptions.dart';
 import 'models/account.dart';
@@ -38,8 +39,27 @@ class AccountManagerPlugin {
   // Lifecycle
   // ---------------------------------------------------------------------------
 
+  static const _configChannel =
+      MethodChannel('flutter_account_manager/config');
+
   /// Initialises the plugin. Must be called before any other operations.
-  Future<void> initialize() async {
+  ///
+  /// [keychainAccessGroup] (iOS only) sets the Keychain Access Group used for
+  /// all subsequent Keychain operations. Pass the group that matches the
+  /// entitlement in your app — e.g. `'me.instahelp'` — to enable cross-app
+  /// credential sharing. Has no effect on Android.
+  Future<void> initialize({String? keychainAccessGroup}) async {
+    if (keychainAccessGroup != null) {
+      try {
+        await _configChannel.invokeMethod<void>('configure', {
+          'keychainAccessGroup': keychainAccessGroup,
+        });
+      } catch (_) {
+        // Silently ignore — Android has no keychain access groups, and the
+        // channel handler may not be registered on all platforms.
+      }
+    }
+
     AccountCallbackFlutterApi.setUp(
         _AccountCallbackHandler(_accountEventController));
 

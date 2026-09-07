@@ -1,11 +1,24 @@
 import Foundation
+import os
 
 /// Implements [AccountManagerHostApi] using iOS Keychain, UserDefaults-backed
 /// AccountStore, and BGTaskScheduler-backed BackgroundSyncManager.
 class AccountManagerHostApiImpl: AccountManagerHostApi {
 
-    private let keychainManager = KeychainManager.shared
+    private var keychainManager: KeychainManager
     private let accountStore = AccountStore.shared
+    private let logger = Logger()
+
+    init(accessGroup: String? = nil) {
+        self.keychainManager = KeychainManager(accessGroup: accessGroup)
+    }
+
+    /// Updates the Keychain Access Group used for subsequent operations.
+    /// Called by [AccountManagerPlugin] when the Dart side invokes
+    /// `initialize(keychainAccessGroup: ...)`.
+    func configure(accessGroup: String?) {
+        keychainManager = KeychainManager(accessGroup: accessGroup)
+    }
 
     // MARK: - Account Operations
 
@@ -136,6 +149,10 @@ class AccountManagerHostApiImpl: AccountManagerHostApi {
                     accountType: account.accountType,
                     tokenType: tokenType
                 )
+                self.logger.info("TOBOL receive token for \(account.username)")
+                self.logger.info("TOBOL receive token for \(account.accountType)")
+                self.logger.info("TOBOL receive token for \(tokenType)")
+                self.logger.info("TOBOL result: \(token ?? "nil")")
                 let result = AuthTokenResult(
                     token: token,
                     errorCode: token == nil ? -1 : nil,
@@ -144,6 +161,7 @@ class AccountManagerHostApiImpl: AccountManagerHostApi {
                 )
                 DispatchQueue.main.async { completion(.success(result)) }
             } catch {
+                self.logger.info("TOBOL token error \(error) \(error.localizedDescription)")
                 let result = AuthTokenResult(
                     token: nil,
                     errorCode: -1,
@@ -196,11 +214,9 @@ class AccountManagerHostApiImpl: AccountManagerHostApi {
         completion(.success([]))
     }
 
-
     // MARK: - Platform-Specific
 
     func openAccountSettings(completion: @escaping (Result<Bool, Error>) -> Void) {
-        // iOS doesn't have a centralised account settings page
         completion(.success(false))
     }
 

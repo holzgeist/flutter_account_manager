@@ -3,6 +3,7 @@ package com.lkrjangid.account_manager
 import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.MethodChannel
 
 /** AccountManagerPlugin — Pigeon-based Flutter plugin entry point. */
 class AccountManagerPlugin : FlutterPlugin {
@@ -17,6 +18,11 @@ class AccountManagerPlugin : FlutterPlugin {
         val impl = AccountManagerHostApiImpl(context)
         hostApiImpl = impl
         AccountManagerHostApi.setUp(messenger, impl)
+
+        // No-op config channel — keychainAccessGroup is iOS-only.
+        // Registering the handler prevents MissingPluginException on the Dart side.
+        MethodChannel(messenger, "flutter_account_manager/config")
+            .setMethodCallHandler { _, result -> result.success(null) }
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
